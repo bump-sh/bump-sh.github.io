@@ -5,11 +5,11 @@ title: Bump CLI
 - TOC
 {:toc}
 
-The Bump.sh CLI is used to interact with your API documentation or hubs hosted on Bump.sh. With any API definition of your choice (from Swagger, OpenAPI or AsyncAPI), it can help you to:
+The Bump.sh CLI is used to interact with your API documentation or hubs hosted on Bump.sh. With any API definition of your choice (from OpenAPI, Swagger, or AsyncAPI), it can help you to:
 
-- Validate an API document before publishing to your documentation
-- Publish an API document to your Bump.sh documentation or hubs
-- Compare two API documents to generate a human-readable diff from your API definitions
+- Validate an API document before publishing to your documentation.
+- Publish an API document to your Bump.sh documentation or hubs.
+- Compare two API documents to generate a human-readable diff from your API description.
 
 ## Installation
 
@@ -95,9 +95,9 @@ Head over to your Documentation settings in the “CI deployment” section or y
 * [`bump preview [FILE]`](#bump-preview-file)
 * [`bump overlay [DEFINITION_FILE] [OVERLAY_FILE]`](#bump-overlay-definition_file-overlay_file)
 
-### `bump deploy [FILE]`
+### The deploy command
 
-When you update your API, you also want its documentation to be up to date for your API users. This is what the deploy command is for.
+When an API is updated, the documentation should be updated at the same time. This is what the deploy command is for.
 
 ```shell
 bump deploy path/to/api-document.yml --doc my-documentation --token $DOC_TOKEN
@@ -154,19 +154,15 @@ bump deploy path/to/api-document.yml --dry-run --doc my-documentation --token $D
 
 Please check `bump deploy --help` for more usage details.
 
-### `bump diff [FILE]`
+### The diff command
 
-_If you want to receive automatic `bump diff` results on your Github Pull Requests you might be interested by [our Github Action](https://github.com/marketplace/actions/bump-sh-api-documentation-changelog#deploy-documentation--diff-on-pull-requests) diff command._
-
-Please note that by default the command will always exit with a
-successful return code. If you want to use this command in a CI
-environment and want the command to fail **in case of a breaking
-change**, you will need to add the `--fail-on-breaking` flag to your
-diff command.
+Using the `diff` command can help to spot differences between the local API
+document and the latest deployed version. 
 
 #### Public API diffs
 
-From any two API documents or URLs, you can retrieve a comprehensive changelog of what has changed between them.
+From any two API documents or URLs, you can retrieve a comprehensive changelog
+of what has changed between them.
 
 ```shell
 $ bump diff path/to/your/file.yml path/to/your/second_file.yml
@@ -175,14 +171,27 @@ Modified: GET /consommations
   Response modified: 200
     [Breaking] Body attribute modified: energie
 ```
-> You can create as many diffs as you like without being authenticated. This is a **free and unlimited service** provided as long as you use the service fairly.
-{: .info}
 
-_Note: You can also test this feature in our dedicated web application at <https://api-diff.io/>._
+By default the command will always exit with a successful return code. If you
+want to use this command in a CI environment and want the command to fail **in
+case of a breaking change**, you will need to add the `--fail-on-breaking` flag
+to your diff command.
+
+You can also test this feature in our dedicated web application at
+<https://api-diff.io/>.
+
+#### GitHub Integration
+
+If you want to receive automatic `bump diff` results on Github Pull Requests you
+might be interested by [our Github
+Action](https://github.com/marketplace/actions/bump-sh-api-documentation-changelog#deploy-documentation--diff-on-pull-requests)
+which has support for the diff command.
 
 #### Authenticated diffs related to your Bump.sh documentation
 
-From an existing Bump.sh documentation, the `diff` command will retrieve a comparison changelog between your latest published documentation and the given file or URL:
+From an existing Bump.sh documentation, the `diff` command will retrieve a
+comparison changelog between your latest published documentation and the given
+file or URL:
 
 ```shell
 bump diff path/to/your/file.yml --doc my-documentation --token $DOC_TOKEN
@@ -196,17 +205,20 @@ bump diff path/to/your/file.yml path/to/your/next-file.yml --doc my-documentatio
 
 Please check `bump diff --help` for full usage details.
 
-### `bump preview [FILE]`
+### The preview command
 
-When writing documentation, you might want to preview how it renders on Bump.sh. This is precisely the goal of the `preview` command: it will create temporary documentation with a unique URL, which will be available for a short period (30 minutes).
+When writing documentation, you might want to preview how it renders on Bump.sh.
+This is precisely the goal of the `preview` command: it will create temporary
+documentation with a unique URL, which will be available for a short period (30
+minutes).
 
-Usage from a local OpenAPI or AsyncAPI file
+Usage from a local OpenAPI or AsyncAPI document:
 
 ```shell
 bump preview path/to/file.json
 ```
 
-You can also preview a file available from a URL
+You can also preview a document available via a URL:
 
 ```shell
 bump preview https://developers.bump.sh/source.yaml
@@ -219,43 +231,55 @@ By using the `--live` flag you can stay focused on API design (OpenAPI or AsyncA
 - Launch the live preview command in your terminal
 
 ```shell
-bump preview --live --open openapi-definition.json
+bump preview --live --open api-document.yaml
 ```
 
-- Edit your `openapi-definition.json` file in your favorite text editor
+- Edit your `api-document.yaml` file in your favorite text editor.
 - Watch the live preview being updated each time you save your file.
+- The additional `--open` flag helps to automatically open the preview URL in your browser.
 
 > You can create as many previews as you like without being authenticated. This is a **free and unlimited service**.
 {: .info}
 
-_Note: the additional `--open` flag helps to automatically open the preview URL in your browser._
-
 Please check `bump preview --help` for more usage details
 
-### `bump overlay [DEFINITION_FILE] [OVERLAY_FILE]`
+### The bump overlay command
 
-> This feature implements the [OpenAPI Overlay specification](https://github.com/OAI/Overlay-Specification). It is possible to apply an Overlay to any kind of document, be it an OpenAPI or AsyncAPI definition file.
-{: .info}
+The [Overlay specification](https://github.com/OAI/Overlay-Specification) from the OpenAPI Initiative makes it possible to modify the content of an API description by adding a layer on top of it. That layer helps adding, removing or changing some or all of the content of the original definition. 
 
-The Overlay specification of OpenAPI makes it possible to modify the content of an API definition file by adding a layer on top of it. That layer helps adding, removing or changing some or all of the content of the original definition. 
+The `bump overlay` command will output a modified version of the OpenAPI description, applying the operations described in the overlay document to the original API description.
 
-Technically, the `bump overlay` command will output a modified version of the `[DEFINITION_FILE]` (an OpenAPI or AsyncAPI document) by applying the operations described in the `[OVERLAY_FILE]` Overlay file to the original API document.
+```shell
+bump overlay openapi.yaml overlay.yaml
+```
 
 To redirect the output of the command to a new file you can run:
 
 ```shell
-bump overlay api-document.yaml overlay-file.yaml > api-overlayed-document.yaml
+bump overlay openapi.yaml overlay.yaml > modified-openapi.yaml
 ```
 
-_Note: you can also apply the overlay during the [`bump deploy` command](#bump-deploy-file) with the new `--overlay` flag:_
+Currently overlays only support OpenAPI, not AsyncAPI.
+
+You can also apply the overlay using the [`deploy` command](#bump-deploy-file) with the `--overlay` flag:
 
 ```shell
-bump deploy api-document.yaml --doc my-doc --token my-token --overlay overlay-file.yaml 
+bump deploy openapi.yaml --doc my-doc --token my-token --overlay overlay.yaml
 ```
 
-## Compatible specification types
+IF there are multiple overlays which need to be applied, the --overlay can be passed multiple times.
 
-We currently support [OpenAPI](https://github.com/OAI/OpenAPI-Specification) from 2.0 (called Swagger) to 3.1 and [AsyncAPI 2.x](https://www.asyncapi.com/docs/reference/specification/latest) specification file types. Both YAML or JSON file formats are accepted file inputs to the CLI.
+```shell
+bump deploy openapi.yaml \
+  --doc my-doc \
+  --token my-token \
+  --overlay overlay1.yaml \
+  --overlay overlay2.yaml
+```
+
+## Compatible API description formats
+
+We currently support [OpenAPI](https://github.com/OAI/OpenAPI-Specification) from v2.0 to v3.1 and [AsyncAPI 2.x](https://www.asyncapi.com/docs/reference/specification/latest) description formats. Both YAML or JSON file formats are accepted file inputs to the CLI.
 
 ## Contributing
 
