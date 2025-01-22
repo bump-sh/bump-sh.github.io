@@ -219,9 +219,7 @@ Amazing! The TypeScript SDK is now integrated into the API documentation, and th
 
 ## Step 6: Applying Code Sample Overlays on Bump.sh Deployments
 
-To get this deployed you can do the same thing you just did, run the overlay then publish the resulting document. This will work on any continuous integration solution, just deploy the temporary created document instead of the original.
-
-In GitHub Actions, it will work like this:
+Get the API deployed with overlays is very similar, only instead of creating the overlay ourselves we can let the `bump deploy` command take care of that. Whatever continuous integration solution is being used will be fairly similar, but in GitHub Actions it look like this:
 
 ```yaml
 # .github/workflows/bump.yml
@@ -241,21 +239,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Add TypeScript SDK Samples to OpenAPI
-        run: |
-          npx bump-cli overlay openapi.yaml \
-            https://spec.speakeasy.com/bumpsh/bumpsh/train-travel-api-typescript-code-samples \
-            > openapi.codegen.yaml
-
       - name: Deploy API documentation
-        uses: bump-sh/github-action@v1
-        with:
-          doc: <your-doc-id-or-slug>
-          token: ${{secrets.BUMP_TOKEN}}
-          file: openapi.codegen.yaml
+        run: |
+          npx bump-cli deploy openapi.yaml \
+            --doc <your-doc-id-or-slug> \
+            --token "${{secrets.BUMP_TOKEN}}" \
+            --overlay https://spec.speakeasy.com/bumpsh/bumpsh/train-travel-api-typescript-code-samples
 ```
 
-That's all you need to do. Commit that, and you'll be generating and deploying OpenAPI-based API Reference Documentation with the very latest version of the code samples.
+Commit that, and you'll be generating and deploying OpenAPI-based API Reference Documentation with the very latest version of the code samples.
 
 See how they look here on the hosted [Train Travel API documentation](https://bump.sh/bump-examples/doc/train-travel-api).
 
@@ -263,28 +255,19 @@ See how they look here on the hosted [Train Travel API documentation](https://bu
 
 **Documenting Multiple SDKs**
 
-To generate multiple SDK languages just repeat the process, to create another SDK on Speakeasy, with another repo, get that repo automated, then in the central repository containing the OpenAPI add more lines to the overlay command.
+To generate multiple SDK languages just repeat the process, to create another SDK on Speakeasy, with another repo, get that repo automated, then in the central repository containing the OpenAPI update your GitHub Action to pass in multiple overlays, one for each SDK language.
 
 ```yaml
-  - name: Add TypeScript SDK Samples to OpenAPI
-    run: |
-      npx bump-cli overlay openapi.yaml \
-        https://spec.speakeasy.com/bumpsh/bumpsh/train-travel-api-typescript-code-samples \
-        > openapi.codegen1.yaml
-
-  - name: Add PHP SDK Samples to OpenAPI
-    run: |
-      npx bump-cli overlay openapi.codegen1.yaml \
-        https://spec.speakeasy.com/bumpsh/bumpsh/train-travel-api-php-code-samples \
-        > openapi.codegen2.yaml
-
   - name: Deploy API documentation
-    uses: bump-sh/github-action@v1
-    with:
-      doc: <your-doc-id-or-slug>
-      token: ${{secrets.BUMP_TOKEN}}
-      file: openapi.codegen2.yaml
+    run: |
+      npx bump-cli deploy openapi.yaml \
+        --doc <your-doc-id-or-slug> \
+        --token "${{secrets.BUMP_TOKEN}}" \
+        --overlay https://spec.speakeasy.com/bumpsh/bumpsh/train-travel-api-typescript-code-samples \
+        --overlay https://spec.speakeasy.com/bumpsh/bumpsh/train-travel-api-php-code-samples
 ```
+
+These overlays will be applied in order, and you can combine them with other overlays from technical writers or other tooling.
 
 **Including SDK Setup Instructions**
 
