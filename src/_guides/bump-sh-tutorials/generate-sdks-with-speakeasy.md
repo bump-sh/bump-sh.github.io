@@ -219,7 +219,7 @@ Amazing! The TypeScript SDK is now integrated into the API documentation, and th
 
 ## Step 6: Applying Code Sample Overlays on Bump.sh Deployments
 
-Get the API deployed with overlays is very similar, only instead of creating the overlay ourselves we can let the `bump deploy` command take care of that. Whatever continuous integration solution is being used will be fairly similar, but in GitHub Actions it look like this:
+Getting the API deployed with overlays is very similar, only instead of creating the overlay ourselves we can let the `bump deploy` command take care of that. Whatever continuous integration solution is being used will be fairly similar, but in GitHub Actions it look like this:
 
 ```yaml
 # .github/workflows/bump.yml
