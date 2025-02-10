@@ -47,7 +47,7 @@ The vast majority of software is run through some sort of version control, and t
 
 Once the changes are merged to the main branch, it means documentation, mock servers, SDKs, and anything else can all be updated along with the main deployment of the source code, so there is no divergence between the code and all these other artifacts.
 
-design-first-workflow.png
+![](/images/guides/design-first/code-first-design-first.png)
 
 ### API Linting
 
