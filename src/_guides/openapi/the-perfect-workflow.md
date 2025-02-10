@@ -18,7 +18,7 @@ Every APIs would define all the endpoints, properties, data types, values, and v
 - Postman collections
 - Client libraries
 
-The whole job was just repeating "Yes, the /trips` endpoint returns trips and they have these properties in this format" until you went blue in the face, and any effort to automate this was converting infinite tricky formats into other infinite tricky formats with often outdated tooling.
+The whole job was just repeating "Yes, the `/trips` endpoint returns trips and they have these properties in this format" until you went blue in the face, and any effort to automate this was converting infinite tricky formats into other infinite tricky formats with often outdated tooling.
 
 ## Modern OpenAPI To the Rescue
 
@@ -30,7 +30,7 @@ Some people still seem to think OpenAPI is just about API documentation, but as 
 
 Lots of folks use little bits of OpenAPI tooling in various manual ways, but when it's hooked up to your version control system and/or continuous integration, then a truly amazing and powerful workflow appears.
 
-Here is the objectives for a truly usefl OpenAPI workflow.
+Here is the objectives for a truly useful OpenAPI workflow.
 
 - One source of truth where API teams update the contract once.
 - Easy Mocking - Easily spin up fake servers for clients to play around with to see if that API design will hold up before time is wasted coding the wrong thing.
