@@ -5,15 +5,18 @@ title: Bump CLI
 - TOC
 {:toc}
 
-The Bump.sh CLI is used to interact with your API documentation or hubs hosted on Bump.sh. With any API definition of your choice (from Swagger, OpenAPI or AsyncAPI), it can help you to:
+The Bump.sh CLI is used to interact with API documentation and hubs hosted on Bump.sh from your choice of popular API description formats: OpenAPI, Swagger, or AsyncAPI.
 
-- Validate an API document before publishing to your documentation
-- Publish an API document to your Bump.sh documentation or hubs
-- Compare two API documents to generate a human-readable diff from your API definitions
+Using [OpenAPI](https://github.com/OAI/OpenAPI-Specification) (v3.x and v2.0) or [AsyncAPI](https://www.asyncapi.com/docs/reference/specification/latest) (2.x), you can do any of the following:
+
+- Validate an API document before publishing to your documentation.
+- Publish an API document to your Bump.sh documentation or hubs.
+- Compare two API documents to generate a human-readable diff from your API definition.
+Under the hood, it uses the API of [developers.bump.sh](https://developers.bump.sh). And is built with the [`oclif`](https://oclif.io) framework in Typescript.
 
 ## Installation
 
-The Bump.sh CLI is a node package currently distributed via NPM. This means you must have the Node v14+ interpreter installed on your computer or CI servers.
+The Bump.sh CLI is a node package currently distributed via NPM. This means you must have the Node v20+ interpreter installed on your computer or CI servers.
 
 _If you are looking to use Bump.sh in a continuous integration environment you might be interested by [our Github Action](https://github.com/marketplace/actions/bump-sh-api-documentation-changelog)._
 
@@ -23,39 +26,39 @@ _If you are looking to use Bump.sh in a continuous integration environment you m
 
 ### Global installation
 
-To install it globally, run the following command with NPM
+To install it globally, run the following command with NPM:
 
 ```shell
 npm install -g bump-cli
 ```
 
-Or, with Yarn via
+Or, with Yarn via:
 
 ```shell
 yarn global add bump-cli
 ```
 
-### Add Bump.sh to your node project
+### Add Bump.sh to your Node project
 
-As our CLI is a node package, you can easily embed it to your project by adding the package to your `package.json` file, either with NPM
+As our CLI is a node package, you can easily embed it to your project by adding the package to your `package.json` file, either with NPM:
 
 ```shell
 npm install --save-dev bump-cli
 ```
 
-Or with Yarn via
+Or with Yarn via:
 
 ```shell
 yarn add --dev bump-cli
 ```
 
-You can then use any Bump.sh commands with `npx` (same as `npm exec`)
+You can then use any Bump.sh commands with `npx` (same as `npm exec`):
 
 ```shell
 npx bump --help
 ```
 
-### How should I do if I'm not using npm ?
+### Can I install Bump.sh CLI without using NodeJS?
 
 Unfortunately, at the moment we only support the Node environment. However, you can download a standalone package directly from the [latest Github release](https://github.com/bump-sh/cli/releases) assets which you can run as a standalone binary. Or you can push your documentation using [our API](https://developers.bump.sh/) (advanced usage only).
 
@@ -68,7 +71,7 @@ $ bump --help
 The Bump.sh CLI is used to interact with your API documentation hosted on Bump.sh by using the API of developers.bump.sh
 
 VERSION
-  bump-cli/2.7.2 linux-x64 node-v16.17.0
+  bump-cli/2.9.2 linux-x64 node-v20.18.1
 
 USAGE
   $ bump [COMMAND]
@@ -77,12 +80,13 @@ COMMANDS
   deploy   Create a new version of your documentation from the given file or URL.
   diff     Get a comparison diff with your documentation from the given file or URL.
   help     Display help for bump.
+  overlay  Apply an OpenAPI specified overlay to your API definition.
   preview  Create a documentation preview from the given file or URL.
 ```
 
  You can also get some help anytime by adding `--help` to any command. Example: `bump deploy --help`.
 
-## Prepare your Bump.sh account
+### Prepare your Bump.sh account
 
 While some commands don't need any API token (`preview` or `diff`) you will need an access key if you want to interact with your Bump.sh documentation.
 
@@ -90,14 +94,14 @@ Head over to your Documentation settings in the “CI deployment” section or y
 
 ## Commands
 
-* [`bump deploy [FILE]`](#bump-deploy-file)
-* [`bump diff [FILE]`](#bump-diff-file)
-* [`bump preview [FILE]`](#bump-preview-file)
-* [`bump overlay [DEFINITION_FILE] [OVERLAY_FILE]`](#bump-overlay-definition_file-overlay_file)
+* [`bump deploy [FILE]`](#the-deploy-command)
+* [`bump diff [FILE]`](#the-diff-command)
+* [`bump preview [FILE]`](#the-preview-command)
+* [`bump overlay [DEFINITION_FILE] [OVERLAY_FILE]`](#the-overlay-command)
 
-### `bump deploy [FILE]`
+### The `deploy` command
 
-When you update your API, you also want its documentation to be up to date for your API users. This is what the deploy command is for.
+When an API is updated, the documentation should be updated at the same time. This is what the deploy command is for.
 
 ```shell
 bump deploy path/to/api-document.yml --doc my-documentation --token $DOC_TOKEN
@@ -106,7 +110,7 @@ bump deploy path/to/api-document.yml --doc my-documentation --token $DOC_TOKEN
 > You can find your own `my-documentation` slug and `$DOC_TOKEN` api key from your [documentation settings](https://bump.sh/docs).
 {: .info}
 
-You can also deploy a given API document to a different branch of your documentation with the `--branch <branch-name>` parameter. Please note the branch will be created if it doesn’t exist. More details about the branching feature are available on [this dedicated help page](/help/branching). E.g. deploy the API document to the `staging` branch of the documentation:
+You can also deploy a given API document to a different branch of your documentation with the `--branch <branch-name>` parameter. Please note the branch will be created if it doesn’t exist. More details about the branching feature are available on [this dedicated help page](https://docs.bump.sh/help/branching). E.g. deploy the API document to the `staging` branch of the documentation:
 
 ```shell
 bump deploy path/to/api-document.yml --doc my-documentation --token $DOC_TOKEN --branch staging
@@ -154,19 +158,15 @@ bump deploy path/to/api-document.yml --dry-run --doc my-documentation --token $D
 
 Please check `bump deploy --help` for more usage details.
 
-### `bump diff [FILE]`
+### The `diff` command
 
-_If you want to receive automatic `bump diff` results on your Github Pull Requests you might be interested by [our Github Action](https://github.com/marketplace/actions/bump-sh-api-documentation-changelog#deploy-documentation--diff-on-pull-requests) diff command._
-
-Please note that by default the command will always exit with a
-successful return code. If you want to use this command in a CI
-environment and want the command to fail **in case of a breaking
-change**, you will need to add the `--fail-on-breaking` flag to your
-diff command.
+Using the `diff` command can help to spot differences between the local API
+document and the latest deployed version. 
 
 #### Public API diffs
 
-From any two API documents or URLs, you can retrieve a comprehensive changelog of what has changed between them.
+From any two API documents or URLs, you can retrieve a comprehensive changelog
+of what has changed between them.
 
 ```shell
 $ bump diff path/to/your/file.yml path/to/your/second_file.yml
@@ -175,14 +175,31 @@ Modified: GET /consommations
   Response modified: 200
     [Breaking] Body attribute modified: energie
 ```
-> You can create as many diffs as you like without being authenticated. This is a **free and unlimited service** provided as long as you use the service fairly.
-{: .info}
 
-_Note: You can also test this feature in our dedicated web application at <https://api-diff.io/>._
+By default the command will always exit with a successful return code. If you
+want to use this command in a CI environment and want the command to fail **in
+case of a breaking change**, you will need to add the `--fail-on-breaking` flag
+to your diff command. 
+
+By default if the environment variable `CI=1` is present (in most continuous
+integration environment), the flag will be enabled. In that case you can disable
+the failures with `--no-fail-on-breaking` flag.
+
+You can also test this feature in our dedicated web application at
+<https://api-diff.io/>.
+
+#### GitHub Integration
+
+If you want to receive automatic `bump diff` results on Github Pull Requests you
+might be interested by [our Github
+Action](https://github.com/marketplace/actions/bump-sh-api-documentation-changelog#deploy-documentation--diff-on-pull-requests)
+which has support for the diff command.
 
 #### Authenticated diffs related to your Bump.sh documentation
 
-From an existing Bump.sh documentation, the `diff` command will retrieve a comparison changelog between your latest published documentation and the given file or URL:
+From an existing Bump.sh documentation, the `diff` command will retrieve a
+comparison changelog between your latest published documentation and the given
+file or URL:
 
 ```shell
 bump diff path/to/your/file.yml --doc my-documentation --token $DOC_TOKEN
@@ -196,17 +213,20 @@ bump diff path/to/your/file.yml path/to/your/next-file.yml --doc my-documentatio
 
 Please check `bump diff --help` for full usage details.
 
-### `bump preview [FILE]`
+### The `preview` command
 
-When writing documentation, you might want to preview how it renders on Bump.sh. This is precisely the goal of the `preview` command: it will create temporary documentation with a unique URL, which will be available for a short period (30 minutes).
+When writing documentation, you might want to preview how it renders on Bump.sh.
+This is precisely the goal of the `preview` command: it will create temporary
+documentation with a unique URL, which will be available for a short period (30
+minutes).
 
-Usage from a local OpenAPI or AsyncAPI file
+Usage from a local OpenAPI or AsyncAPI document:
 
 ```shell
 bump preview path/to/file.json
 ```
 
-You can also preview a file available from a URL
+You can also preview a document available via a URL:
 
 ```shell
 bump preview https://developers.bump.sh/source.yaml
@@ -219,48 +239,54 @@ By using the `--live` flag you can stay focused on API design (OpenAPI or AsyncA
 - Launch the live preview command in your terminal
 
 ```shell
-bump preview --live --open openapi-definition.json
+bump preview --live --open api-document.yaml
 ```
 
-- Edit your `openapi-definition.json` file in your favorite text editor
+- Edit your `api-document.yaml` file in your favorite text editor.
 - Watch the live preview being updated each time you save your file.
+- The additional `--open` flag helps to automatically open the preview URL in your browser.
 
 > You can create as many previews as you like without being authenticated. This is a **free and unlimited service**.
 {: .info}
 
-_Note: the additional `--open` flag helps to automatically open the preview URL in your browser._
-
 Please check `bump preview --help` for more usage details
 
-### `bump overlay [DEFINITION_FILE] [OVERLAY_FILE]`
+### The `overlay` command
 
-> This feature implements the [OpenAPI Overlay specification](https://github.com/OAI/Overlay-Specification). It is possible to apply an Overlay to any kind of document, be it an OpenAPI or AsyncAPI definition file.
-{: .info}
+The [Overlay Specification](https://spec.openapis.org/overlay/v1.0.0.html) from the OpenAPI Initiative makes it possible to modify the content of an API definition by adding a layer on top of it. That layer helps adding, removing or changing some or all of the content of the original definition. 
 
-The Overlay specification of OpenAPI makes it possible to modify the content of an API definition file by adding a layer on top of it. That layer helps adding, removing or changing some or all of the content of the original definition. 
+The `bump overlay` command takes an original API document, applies the changes from the overlay document, and outputs a modified version. No changes are made directly to the original document.
 
-Technically, the `bump overlay` command will output a modified version of the `[DEFINITION_FILE]` (an OpenAPI or AsyncAPI document) by applying the operations described in the `[OVERLAY_FILE]` Overlay file to the original API document.
+```shell
+bump overlay api-document.yaml overlay.yaml
+```
 
 To redirect the output of the command to a new file you can run:
 
 ```shell
-bump overlay api-document.yaml overlay-file.yaml > api-overlayed-document.yaml
+bump overlay api-document.yaml overlay.yaml > modified-api-document.yaml
 ```
 
-_Note: you can also apply the overlay during the [`bump deploy` command](#bump-deploy-file) with the new `--overlay` flag:_
+You can also apply the overlay using the [`deploy` command](#the-deploy-command) with the `--overlay` flag:
 
 ```shell
-bump deploy api-document.yaml --doc my-doc --token my-token --overlay overlay-file.yaml 
+bump deploy api-document.yaml --doc my-doc --token my-token --overlay overlay.yaml
 ```
 
-## Compatible specification types
+If there are multiple overlays which need to be applied, the `--overlay` can be passed multiple times.
 
-We currently support [OpenAPI](https://github.com/OAI/OpenAPI-Specification) from 2.0 (called Swagger) to 3.1 and [AsyncAPI 2.x](https://www.asyncapi.com/docs/reference/specification/latest) specification file types. Both YAML or JSON file formats are accepted file inputs to the CLI.
-
-## Contributing
-
-Bug reports and pull requests are welcome on GitHub at <https://github.com/bump-sh/cli>. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+```shell
+bump deploy api-document.yaml \
+  --doc my-doc \
+  --token my-token \
+  --overlay overlay1.yaml \
+  --overlay overlay2.yaml
+```
 
 ## License
 
 The Bump CLI project is released under the [MIT License](http://opensource.org/licenses/MIT).
+
+## Contributing
+
+Bug reports and pull requests are welcome on GitHub at <https://github.com/bump-sh/cli>. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
