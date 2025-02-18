@@ -45,3 +45,5 @@ gem "bridgetown-sitemap", "~> 2.0"
 gem "bridgetown-seo-tag", "~> 6.0"
 
 gem "bridgetown_internal_markdown_links", "~> 0.2.0"
+
+gem "commonmarker"
