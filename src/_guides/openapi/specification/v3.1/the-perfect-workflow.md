@@ -272,7 +272,7 @@ jobs:
       speakeasy_api_key: ${{ secrets.SPEAKEASY_API_KEY }}
 ```
 
-Speakeasy will automatically generate these SDKs on every push to the `main` branch, taggin versions as appropriate. With a bit of other setup, these SDKs can be pushed directly to package managers like NPM, PyPI, Packagist, NuGet, and Maven.
+Speakeasy will automatically generate these SDKs on every push to the `main` branch, tagging versions as appropriate. With a bit of other setup, these SDKs can be pushed directly to package managers like NPM, PyPI, Packagist, NuGet, and Maven.
 
 Once this is done, you can update API documentation on Bump.sh to include these SDKs in the code examples, instead of the default of showing curl CLI examples, or rudimentary code samples like using `fetch()` or other low-level HTTP code.
 

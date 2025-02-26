@@ -11,7 +11,7 @@ These can be a lot of work to build and keep up to date, but if you've got OpenA
 
 ## What is Speakeasy
 
-[Speakeasy](https://www.speakeasy.com/) is Software-as-a-Service similar to Bump.sh, but instead of focusing on documentation they focus on SDK generation. In the past you'd have to use cumbersome Java-based open-source tooling and generally develop your own templates, but with Speakeasy you can simply upload an OpenAPI description document and get type-safe SDKs that your team will be proud of: include OAuth2.0, retries, pagination, custom code, and more.
+[Speakeasy](https://www.speakeasy.com/) is Software-as-a-Service similar to Bump.sh, but instead of focusing on documentation they focus on SDK generation. In the past you'd have to use cumbersome Java-based open-source tooling and generally develop your own templates, but with Speakeasy you can simply upload an OpenAPI description document and get type-safe SDKs that your team will be proud of. These SDKs include OAuth 2, retries, pagination, custom code, and more.
 
 ## Step 1: Set up Speakeasy
 
