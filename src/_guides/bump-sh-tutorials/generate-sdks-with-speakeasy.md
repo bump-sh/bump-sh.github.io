@@ -108,7 +108,8 @@ speakeasy configure publishing
 This will create another github workflow which will help publish the package automatically, and should look a bit like this:
 
 ```yaml
-name: Publish
+# .github/workflows/sdks.yml
+name: Publish SDKs
 permissions:
   checks: write
   contents: write
@@ -131,7 +132,6 @@ jobs:
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
       npm_token: ${{ secrets.NPM_TOKEN }}
       speakeasy_api_key: ${{ secrets.SPEAKEASY_API_KEY }}
-
 ```
 
 Notice it is still using the `SPEAKEASY_API_KEY` that we used in the generate workflow, but now there's a `NPM_TOKEN` we'll need to add. Grab that from your [NPM account](https://www.npmjs.com/login) under Access Tokens, make sure it has write permission for packages, and save it as `NPM_TOKEN` in your repo GitHub repository Actions secrets.
