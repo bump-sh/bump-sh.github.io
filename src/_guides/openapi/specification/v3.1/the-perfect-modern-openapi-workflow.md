@@ -485,11 +485,6 @@ jobs:
           waitFor: '10sec'
 ```
 
-This can replace the `.github/workflows/api-mocks.yaml` workflow above which
-only wanted to update the mocks, allowing you to update moth mocks and run the
-contract testing to make sure the real API matches the OpenAPI that describes
-it, which also happens to ensure that the mock server is matching the actual API
-too.
 
 *Learn more about [contract testing with Microcks](_guides/bump-sh-tutorials/testing-with-microcks.md).*
 
