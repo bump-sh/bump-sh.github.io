@@ -11,11 +11,11 @@ whole job seemed to be repeating the "I" in API (Interface) over and over again
 in various formats. Every APIs would define all the endpoints, properties, data
 types, values, and validation rules, in all the following places and more: 
 
+- Reference documentation
 - Request validation
 - Serializers
 - Integration tests
 - Contract tests
-- API reference documentation
 - Postman collections
 - Client libraries
 
@@ -343,7 +343,7 @@ it do
 end
 ```
 
-Running this contract testing is done whenever the existing test suite is run.
+Running this contract testing is done whenever the existing integration test suite is run.
 
 ```yaml
 # .github/workflows/tests.yaml
@@ -371,12 +371,12 @@ jobs:
 > touch](mailto:hello@bump.sh).
 {: .info }
 
-If an API does not have an existing test suite this might seem like a bigger
-push, but an API without a test suite should absolutely add one. Working with a
-generic test suite and adding in some OpenAPI assertions can be a great way to
-start off a larger test suite. Set up one HTTP request for each API endpoint,
-with basic information, and add other tests for various scenarios over time as
-bugs are squashed.
+If an API does not have an existing integration test suite this might seem like
+a bigger push, but an API without a test suite should absolutely add one.
+Working with a generic test suite and adding in some OpenAPI assertions can be a
+great way to start off a larger test suite. Set up one HTTP request for each API
+endpoint, with basic information, and add other tests for various scenarios over
+time as bugs are squashed.
 
 Another option to avoid that is to run contract testing outside of the codebase.
 To avoid having to train a tool to know what the expected contract is, why not
