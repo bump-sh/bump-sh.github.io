@@ -45,88 +45,87 @@ The vast majority of software is run through some sort of version control, and t
 
 Once the changes are merged to the main branch, it means documentation, mock servers, SDKs, and anything else can all be updated along with the main deployment of the source code, so there is no divergence between the code and all these other artifacts.
 
-![](/images/guides/design-first/code-first-design-first.png)
+![](/images/guides/the-perfect-modern-openapi-workflow/design-first-workflow.png)
 
-### API Linting
+Let's take a look at each of these stages of the API lifecycle, and how OpenAPI tooling can help.
 
-Linting can make sure sure that every change makes the API better, with a rules-based engines that allows people to set rules for target anything in the API description. Is the OpenAPI valid, is the API it's describing top quality, is it following the right standards and best practices? 
+### Design & Development
 
-Tools like [vacuum](https://bump.sh/blog/api-linting-with-vacuum) power this concept, and can be run locally using a CLI, or in Visual Studio using [vacuum-vscode](https://github.com/pb33f/vacuum-vscode) to make sure that the API/OpenAPI is good to go before changes are even committed.
+#### Write OpenAPI
+
+Create OpenAPI with some sort of editor. There are a few [graphical editors](https://openapi.tools/#gui-editors) available which make getting started with OpenAPI considerably easier, but many of them assume you will design an API, then export it, then never go back to the OpenAPI to update it. They provide awkward importing through web interfaces, or complicated syncing, or throw a bunch of confusing paywalls up, so many people prefer to use their favorite editor. 
+
+[VS Code](https://code.visualstudio.com/) is a popular choice, with the [OpenAPI Editor](https://marketplace.visualstudio.com/items?itemName=42Crunch.vscode-openapi) extension by 42Crunch providing code navigation, linting, preview, IntelliSense, schema enforcement, and a handy snippets feature to avoid repeating things. It also has static and dynamic security analysis of the OpenAPI if you want to make sure you're not making terrible mistakes early on.
+
+#### API Linting
+
+Linting an OpenAPI document is like linting any other source code. Using OpenAPI-aware linters, syntax errors and semantic mistakes can be spotted, but more importantly it helps to make sure that the API is of good quality, and the OpenAPI that describes it is written properly, right from the start. 
+
+Linting can cover anything from enforcing naming conventions for endpoints or properties, outlawing the use of auto-incrementing IDs, picking a single versioning scheme across multiple APIs, removing dead code,requiring a specific data format like [JSON:API](https://jsonapi.org/) or [HAL](https://stateless.group/hal_specification.html), requesting API designers stick to standards like [RFC 9457: Problem Details for APIs](https://www.rfc-editor.org/rfc/rfc9457), or anything else you can imagine a rule being created for. 
+
+Tools like [vacuum](https://bump.sh/blog/api-linting-with-vacuum) power this concept, and can be run locally using a CLI, or in Visual Studio using [vacuum-vscode](https://github.com/pb33f/vacuum-vscode). 
+
+### API Governance
+
+API Governance is the framework or making great, consistent, reliable, and consumable APIs. Over the last decade, API governance has gone from some vague concept being mentioned at conferences, to being a beautifully solved problem with a plethora of tooling. 
+
+Whilst API governance is a massive topic, a few key parts can be handled with OpenAPI tooling, speeding up and partially automating "API Design Reviews", simplifying change detection, automation of "API style guides", and creating an API Catalog that can help keep track of all the APIs in a company so they don't go missing and fall into disrepair. 
+
+#### API Design Reviews
+
+One of the main parts of a good API governance framework is the "API Design Review", to make sure the API is going to be useful not just valid. This can be a very manual and time consuming process without OpenAPI, and a good governance process should be democratized, automated, and flexible.
+
+Just as code changes need to be reviewed as well as simply tested, OpenAPI changes need to be reviewed to make sure they are a good idea for the API, consumers, and organization at large. This is more than just checking the changes are valid. 
+
+To make their life a little easier, Bump.sh can compare the OpenAPI in the a pull request to the latest deployed document, and report back on the changes being made. This helps skip staring at infinite lines of YAML/JSON, and makes understanding what, if anything, meaningfully changed. New properties, changed property validations, or breaking changes like a removed endpoint or new required property.
+
+```yaml
+# .github/workflows/api-docs.yaml
+name: API Changes
+permissions:
+  contents: read
+  pull-requests: write
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  changes:
+    name: Detect and preview API changes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Comment pull request with API diff
+        uses: bump-sh/github-action@v1
+        with:
+          doc: <BUMP_DOC_ID>
+          token: ${{secrets.BUMP_TOKEN}}
+          file: openapi.yaml
+          command: diff
+
+      - name: API Preview pull request with API diff
+        uses: bump-sh/github-action@v1
+        with:
+          doc: <BUMP_DOC_ID>
+          token: ${{secrets.BUMP_TOKEN}}
+          file: openapi.yaml
+          command: preview
+```
+
+#### API Linting Again 
+
+Is the OpenAPI valid, is the API it's describing top quality, is it following the right standards and best practices? 
 
 Linting can also be run on pull requests via continuous integration offerings like GitHub Actions. This is a huge piece of the puzzle for "API Design Reviews" and helps cover a chunk of the massive topic that is "API Governance".
 
-Configuring the linter to return errors and warnings as annotations on the problematic lines protects helps highlight dangerous security concerns, bad naming conventions, or anything else you can imagine a rule being created for. 
+Configuring the linter to return errors and warnings as annotations on the problematic lines protects helps 
 
 ![](/images/guides/the-perfect-modern-openapi-workflow/vacuum-annotations.png)
 
-### Deploy Documentation
-
-Updating OpenAPI is the easiest way to maintain up-to-date documentation, without having to remember to go and update some wiki/CMS somewhere. Tools like Bump.sh provide hosted API documentation which can be updated every time the Git repo receives updated OpenAPI.
-
-```yaml
-# .github/workflows/deploy-docs.yml
-name: Deploy API documentation
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  deploy-openapi:
-    if: ${{ github.event_name == 'push' }}
-    name: Deploy API documentation on Bump.sh
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Deploy API documentation
-        uses: bump-sh/github-action@v1
-        with:
-          doc: <your-doc-id-or-slug>
-          token: ${{secrets.BUMP_TOKEN}}
-          file: api/openapi.yaml
-```
-
-### Deploy Mocks
-
-There are countless API mocking tools out there, many of which work with OpenAPI to save the manual effort of updating them every time an API changes, whether that is throughout design and development phases, or later as the API evolves.
-
-One such tool is Microcks, a self-hosted mock server with an admin interface and easily accessible HTTP endpoints that simulate the API being described in OpenAPI. You could log into that admin panel and let it know somebody has updated the OpenAPI every now and then, but why not automate that to save time.
-
-One approach is to push with GitHub Actions, which look a bit like this:
-
-```yaml
-# .github/workflows/api-mocks.yml
-name: Deploy API mocks
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  deploy-mocks:
-    if: ${{ github.event_name == 'push' }}
-    name: Deploy API mocks to Microcks
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - uses: microcks/import-github-action@v1
-        with:
-          specificationFiles: 'api/openapi.yaml:true'
-          microcksURL: 'https://mocks.example.com/api/'
-          keycloakClientId:  ${{ secrets.MICROCKS_SERVICE_ACCOUNT }}
-          keycloakClientSecret:  ${{ secrets.MICROCKS_SERVICE_ACCOUNT_CREDENTIALS }}
-
-```
-
-This workflow could be combined with other jobs, or it could be left as its own workflow like this for clarity. Either way, whenever a change is made to the `main` branch the mock servers will be updated and instantly reflect the latest OpenAPI.
-
-*Learn more about [API mocking with Microcks](/guides/bump-sh-tutorials/mocking-with-microcks/).*
 
 ### Contract Testing
 
@@ -237,7 +236,82 @@ This can replace the `.github/workflows/api-mocks.yaml` workflow above which onl
 
 *Learn more about [contract testing with Microcks](/guides/bump-sh-tutorials/testing-with-microcks/).*
 
-### Publish SDK
+
+### Deploying Artifacts
+
+There are countless artifacts that need to be kept up-to-date with the API as it is changed over time, and instead of doing any of this manually we can let OpenAPI handle all of it.
+
+#### Deploy Documentation
+
+Using OpenAPI is the easiest way to maintain up-to-date documentation, without having to remember to go and update some wiki/CMS somewhere, or try to time updates with code deployments. Tools like Bump.sh provide hosted API documentation which can be updated every time the Git repo receives updated OpenAPI.
+
+As soon as a pull request is merged to the `main` branch, the OpenAPI document that accompanies the source code can be deployed to the Bump.sh documentation, keeping everything in sync.
+
+```yaml
+# .github/workflows/api-docs.yml
+name: Deploy API documentation
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-openapi:
+    if: ${{ github.event_name == 'push' }}
+    name: Deploy API documentation on Bump.sh
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy API documentation
+        uses: bump-sh/github-action@v1
+        with:
+          doc: <your-doc-id-or-slug>
+          token: ${{secrets.BUMP_TOKEN}}
+          file: api/openapi.yaml
+```
+
+This keeps the API reference documentation always relevant, and because it's been used for contract testing there cannot have been any "drift" between the API implementation and the OpenAPI describing it, meaning the reference documentation must be correct.
+
+#### Deploy Mocks
+
+There are countless API mocking tools out there, many of which work with OpenAPI to save the manual effort of updating them every time an API changes, whether that is throughout design and development phases, or later as the API evolves.
+
+One such tool is Microcks, a self-hosted mock server with an admin interface and easily accessible HTTP endpoints that simulate the API being described in OpenAPI. You could log into that admin panel and let it know somebody has updated the OpenAPI every now and then, but why not automate that to save time.
+
+Using GitHub Actions to handle that update looks a bit like this:
+
+```yaml
+# .github/workflows/api-mocks.yml
+name: Deploy API mocks
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy-mocks:
+    if: ${{ github.event_name == 'push' }}
+    name: Deploy API mocks to Microcks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: microcks/import-github-action@v1
+        with:
+          specificationFiles: 'api/openapi.yaml:true'
+          microcksURL: 'https://mocks.example.com/api/'
+          keycloakClientId:  ${{ secrets.MICROCKS_SERVICE_ACCOUNT }}
+          keycloakClientSecret:  ${{ secrets.MICROCKS_SERVICE_ACCOUNT_CREDENTIALS }}
+```
+
+This workflow could be combined with other jobs, or it could be left as its own workflow like this for clarity. Either way, whenever a change is made to the `main` branch the mock servers will be updated and instantly reflect the latest OpenAPI.
+
+*Learn more about [API mocking with Microcks](/guides/bump-sh-tutorials/mocking-with-microcks/).*
+
+#### Publish SDKs
 
 The quicker a customer can integrate with your API, the quicker your business will be making money or solving problems. Some users will be happy to integrate directly with the API, but many prefer the ease of working within the programming language through Software Development Kits (SDKs).
 
@@ -254,7 +328,7 @@ permissions:
   pull-requests: write
   statuses: write
   id-token: write
-"on":
+on:
   push:
     branches:
       - main
@@ -276,53 +350,14 @@ Speakeasy will automatically generate these SDKs on every push to the `main` bra
 
 Once this is done, you can update API documentation on Bump.sh to include these SDKs in the code examples, instead of the default of showing curl CLI examples, or rudimentary code samples like using `fetch()` or other low-level HTTP code.
 
-![The Train Travel API documentation example on Bump.sh with a TypeScript SDK generated by Speakeasy showing in the documentation.](/images/guides/the-perfect-workflow/bump-sdks.png)
+![The Train Travel API documentation example on Bump.sh with a TypeScript SDK generated by Speakeasy showing in the documentation.](/images/guides/the-perfect-modern-openapi-workflow/bump-sdks.png)
 
 *Learn more about [SDK generation with Speakeasy](/guides/bump-sh-tutorials/generate-sdks-with-speakeasy/).*
 
-### Changes & Reviews
+#### API Catalog
 
-When OpenAPI changes in pull requests somebody is going to need to review it. To make their life a little easier, Bump.sh can detect and report changes, and deploy a preview of the OpenAPI documentation 
+Remember API catalogs mentioned earlier? API Catalog via Hubs, dont build your own custom stuff just let Bump do the hard work for you.
 
-```yaml
-# .github/workflows/api-docs.yaml
-name: API Changes
-permissions:
-  contents: read
-  pull-requests: write
-
-on:
-  pull_request:
-    branches:
-      - main
-
-jobs:
-  changes:
-    name: Check API diff on Bump.sh
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Comment pull request with API diff
-        uses: bump-sh/github-action@v1
-        with:
-          doc: <BUMP_DOC_ID>
-          token: ${{secrets.BUMP_TOKEN}}
-          file: openapi.yaml
-          command: diff
-
-      - name: Comment pull request with API diff
-        uses: bump-sh/github-action@v1
-        with:
-          doc: <BUMP_DOC_ID>
-          token: ${{secrets.BUMP_TOKEN}}
-          file: openapi.yaml
-          command: preview
-```
-
-Automatically update with Speakeasy and pull in the SDK changes to your docs to make it even better.
-
-### Publish to Postman
+#### Publish to Postman
 
 Link to the guide or just say lol why you need postman when Bump has an API Explorer now. 
