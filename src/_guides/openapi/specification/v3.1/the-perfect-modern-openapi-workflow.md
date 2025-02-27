@@ -517,7 +517,6 @@ on:
 
 jobs:
   deploy-openapi:
-    if: ${{ github.event_name == 'push' }}
     name: Deploy API documentation on Bump.sh
     runs-on: ubuntu-latest
     steps:
