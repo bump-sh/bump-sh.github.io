@@ -83,9 +83,9 @@ all these other artifacts.
 Let's take a look at each of these stages of the API lifecycle, and how OpenAPI
 tooling can help.
 
-### Design & Development
+## Phase 1: Design & Development
 
-#### Write OpenAPI
+### Write OpenAPI
 
 Create OpenAPI with some sort of editor. There are a few [graphical
 editors](https://openapi.tools/#gui-editors) available which make getting
@@ -102,7 +102,7 @@ schema enforcement, and a handy snippets feature to avoid repeating things. It
 also has static and dynamic security analysis of the OpenAPI if you want to make
 sure you're not making terrible mistakes early on.
 
-#### API Linting
+### API Linting
 
 Linting an OpenAPI document is like linting any other source code. Using
 OpenAPI-aware linters, syntax errors and semantic mistakes can be spotted, but
@@ -121,7 +121,7 @@ a rule being created for.
 
 Tools like [vacuum](https://bump.sh/blog/api-linting-with-vacuum) power this concept, and can be run locally using a CLI, or in Visual Studio using [vacuum-vscode](https://github.com/pb33f/vacuum-vscode). 
 
-#### Server-side Validation
+### Server-side Validation
 
 Once the API design has been approved and development begins on the API, the
 OpenAPI is already right there in the repository so why not use it to avoid writing out all the same validation rules as code? 
@@ -196,7 +196,7 @@ when they’re sharing a single source of truth like this.
 
 *Learn more about [using OpenAPI to simplify building Ruby on Rails APIs](https://docs.bump.sh/guides/openapi/design-first-rails/), with a [similar guide for Laravel PHP users](https://docs.bump.sh/guides/openapi/design-first-laravel-php/).*
 
-### API Governance
+## Phase 2: API Governance
 
 API Governance is the framework or making great, consistent, reliable, and
 consumable APIs. Over the last decade, API governance has gone from some vague
@@ -210,7 +210,7 @@ automating "API Design Reviews", simplifying change detection, automation of
 "API style guides", and creating an API Catalog that can help keep track of all
 the APIs in a company so they don't go missing and fall into disrepair. 
 
-#### API Design Reviews
+### API Design Reviews
 
 Just as pull requests need to pass automated testing as well as being peer
 reviewed, OpenAPI changes need to be reviewed to make sure they are a good idea
@@ -233,7 +233,7 @@ anything, meaningfully changed. New properties, changed property validations, or
 breaking changes like a removed endpoint or new required property. 
 
 ```yaml
-# .github/workflows/api-diff.yaml
+# .github/workflows/api-changes.yaml
 name: API Changes
 permissions:
   contents: read
@@ -259,17 +259,9 @@ jobs:
           token: ${{secrets.BUMP_TOKEN}}
           file: api/openapi.yaml
           command: diff
-
-      - name: API Preview pull request with API diff
-        uses: bump-sh/github-action@v1
-        with:
-          doc: <BUMP_DOC_ID>
-          token: ${{secrets.BUMP_TOKEN}}
-          file: api/openapi.yaml
-          command: preview
 ```
 
-#### API Linting Again 
+### API Linting Again 
 
 Linting was used in the design and development phase, running locally in the CLI
 or editor, but linting is useful in the governance phase too. By running API
@@ -295,7 +287,67 @@ new rules over time as more problems pop up or best practices evolve, it helps
 to iteratively improve not just the API in question, but all future and existing
 APIs in the organization.
 
-#### Contract Testing
+Let's combine this extra linting job with the previous API change workflow.
+
+```yaml
+# .github/workflows/api-changes.yaml
+name: API Changes
+permissions:
+  contents: read
+  pull-requests: write
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'README.md'
+      - 'src/**'
+
+jobs:
+  changes:
+    name: Detect and preview API changes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Comment pull request with API diff
+        uses: bump-sh/github-action@v1
+        with:
+          doc: <BUMP_DOC_ID>
+          token: ${{secrets.BUMP_TOKEN}}
+          file: api/openapi.yaml
+          command: diff
+
+  lint:
+    name: API Linting
+    runs-on: ubuntu-latest
+
+    permissions:
+      statuses: write
+      checks: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint API
+        run: npm exec vacuum report -- --junit openapi.yaml lint-results
+
+      - name: Publish Lint Results
+        if: success() || failure()
+        uses: mikepenz/action-junit-report@v5
+        with:
+          check_name: API Lint Results
+          report_paths: lint-results-*.xml
+```
+
+### Contract Testing
 
 Contract testing used to be complicated, with dedicated testing tools running in
 isolation that had know knowledge of what the contract was meant to be until you
@@ -441,13 +493,13 @@ too.
 
 *Learn more about [contract testing with Microcks](_guides/bump-sh-tutorials/testing-with-microcks.md).*
 
-### Deploying Artifacts
+## Phase 3: Deploying Artifacts
 
 There are countless artifacts that need to be kept up-to-date with the API as it
 is changed over time, and instead of doing any of this manually we can let
 OpenAPI handle all of it.
 
-#### Deploy Documentation
+### Deploy Documentation
 
 Using OpenAPI is the easiest way to maintain up-to-date documentation, without
 having to remember to make manual changes to some wiki/CMS somewhere, or try to
@@ -490,7 +542,7 @@ been used for contract testing there cannot have been any "drift" between the
 API implementation and the OpenAPI describing it, meaning the reference
 documentation must be correct.
 
-#### Deploy Mocks
+### Deploy Mocks
 
 There are countless API mocking tools out there, many of which work with OpenAPI
 to save the manual effort of updating them every time an API changes, whether
@@ -534,7 +586,7 @@ OpenAPI.
 
 *Learn more about [API mocking with Microcks](_guides/bump-sh-tutorials/mocking-with-microcks.md).*
 
-#### Publish SDKs
+### Publish SDKs
 
 The quicker a customer can integrate with your API, the quicker your business
 will be making money or solving problems. Some users will be happy to integrate
@@ -598,7 +650,7 @@ or rudimentary code samples like using `fetch()` or other low-level HTTP code.
 
 *Learn more about [SDK generation with Speakeasy](_guides/bump-sh-tutorials/generate-sdks-with-speakeasy.md).*
 
-#### API Catalog
+### API Catalog
 
 Another key part of API governance is discoverability, which usually takes the
 form of "API Catalogs". Infinite awkward solutions have been employed in the
@@ -614,7 +666,7 @@ Alternatively, Hubs could be used to group APIs by team or department.
 
 *Learn more about [API discovery with Bump.sh Hubs](_guides/bump-sh-tutorials/api-discovery-using-bump-sh-hubs.md).*
 
-#### Publish to Postman
+### Try it Now
 
 Seeing how an API works is the first step in an API consumers journey to using
 the API, and the second step is making some test requests to get a feel for how
