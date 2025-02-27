@@ -7,7 +7,7 @@ date: 2024-05-14
 
 > Bump.sh now includes its own [API Explorer](https://docs.bump.sh/product-updates/2025/01/09/api-explorer/), allowing you to test your API directly within your documentation. [Give it a try!](https://bump.sh/demo/doc/api-explorer/explorer/operation/operation-adduser)
 
-Seeing how an API works is the first step in an end-users journey to using the API, and the second step is making some test requests to get a feel for how it works. Some people like to do this with code, so code samples will be a good start for them, especially if you have an SDL. Other people like to do this with interactive HTTP clients, like [Postman](https://postman.com/).
+Seeing how an API works is the first step in an end-users journey to using the API, and the second step is making some test requests to get a feel for how it works. Some people like to do this with code, so code samples will be a good start for them, especially if you have an SDK. Other people like to do this with interactive HTTP clients, like [Postman](https://postman.com/).
 
 Postman is one of the original modern API consoles. Users can create or import "collections" which are very similar to OpenAPI but focus more on actual requests and responses being saved, like a whole bunch of bookmarks in a browser. Those collections can be distributed in various ways, and it's becoming increasingly common for API providers to publish a read-only public Postman Collection for end-users to download, so they have a whole interactive API console ready to go.
 
