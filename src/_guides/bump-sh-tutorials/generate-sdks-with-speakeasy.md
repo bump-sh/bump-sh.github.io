@@ -11,7 +11,7 @@ These can be a lot of work to build and keep up to date, but if you've got OpenA
 
 ## What is Speakeasy
 
-[Speakeasy](https://www.speakeasy.com/) is Software-as-a-Service similar to Bump.sh, but instead of focusing on documentation they focus on SDK generation. In the past you'd have to use cumbersome Java-based open-source tooling and generally develop your own templates, but with Speakeasy you can simply upload an OpenAPI description document and get type-safe SDKs that your team will be proud of: include OAuth2.0, retries, pagination, custom code, and more.
+[Speakeasy](https://www.speakeasy.com/) is Software-as-a-Service similar to Bump.sh, but instead of focusing on documentation they focus on SDK generation. In the past you'd have to use cumbersome Java-based open-source tooling and generally develop your own templates, but with Speakeasy you can simply upload an OpenAPI description document and get type-safe SDKs that your team will be proud of. These SDKs include OAuth 2, retries, pagination, custom code, and more.
 
 ## Step 1: Set up Speakeasy
 
@@ -108,7 +108,8 @@ speakeasy configure publishing
 This will create another github workflow which will help publish the package automatically, and should look a bit like this:
 
 ```yaml
-name: Publish
+# .github/workflows/sdks.yml
+name: Publish SDKs
 permissions:
   checks: write
   contents: write
@@ -131,7 +132,6 @@ jobs:
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
       npm_token: ${{ secrets.NPM_TOKEN }}
       speakeasy_api_key: ${{ secrets.SPEAKEASY_API_KEY }}
-
 ```
 
 Notice it is still using the `SPEAKEASY_API_KEY` that we used in the generate workflow, but now there's a `NPM_TOKEN` we'll need to add. Grab that from your [NPM account](https://www.npmjs.com/login) under Access Tokens, make sure it has write permission for packages, and save it as `NPM_TOKEN` in your repo GitHub repository Actions secrets.
