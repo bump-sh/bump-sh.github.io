@@ -41,3 +41,10 @@ pxQuim:
   github: https://github.com/pxquim
   image_url: https://avatars.githubusercontent.com/u/10789151
   email: px@acm.org
+
+stainless-sam:
+  name: Sam El-Borai
+  title: Customer Engineer at Stainless
+  github: https://github.com/dgellow
+  image_url: https://avatars.githubusercontent.com/u/2451004
+  email: support@stainless.com
